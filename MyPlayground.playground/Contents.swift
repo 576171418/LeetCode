@@ -241,3 +241,130 @@ func sortColors(_ nums: inout [Int]) {
         }
     }
 }
+
+//13.组合之和
+func combinationSum(_ candidates: [Int], _ target: Int) -> [[Int]] {
+    var result = [[Int]]()
+    candidates.sorted()
+    if candidates[0] > target || candidates.count == 0 {
+        return result
+    }
+    var temp = [Int]()
+    getRemainTarget(nums: candidates, result: &result, tmp: &temp, start: 0, remain: target)
+    
+    return result
+}
+
+func getRemainTarget(nums: [Int], result: inout [[Int]], tmp: inout [Int], start: Int, remain: Int) {
+    if remain < 0 {
+        return
+    } else if remain == 0 {
+        result.append(tmp)
+    } else {
+        for i in start ..< nums.count {
+            tmp.append(nums[i])
+            getRemainTarget(nums: nums, result: &result, tmp: &tmp, start: i, remain: remain - nums[i])
+            tmp.remove(at: tmp.count - 1)
+        }
+    }
+}
+
+//14.全排列
+func backtrack(n: Int, nums: inout [Int], output: inout [[Int]], first: Int) {
+    //排列结束
+    if first == n {
+        output.append(nums)
+    }
+    
+    for i in first ..< n {
+        nums.swapAt(first, i)
+        backtrack(n: n, nums: &nums, output: &output, first: first+1)
+        nums.swapAt(first, i)
+    }
+    
+}
+
+func permute(_ nums: [Int]) -> [[Int]] {
+    let n = nums.count
+    var tempNums = nums
+    var output = [[Int]]()
+    backtrack(n: n, nums: &tempNums, output: &output, first: 0)
+    return output
+}
+
+
+//15.在排序数组中查找元素的第一个和最后一个位置(线性查找，时间复杂度O(n))
+//func searchRange(_ nums: [Int], _ target: Int) -> [Int] {
+//    var p1 = 0
+//    let n = nums.count
+//    var result = [Int]()
+//    while p1 < n {
+//        if nums[p1] == target {
+//            result.append(p1)
+//        }
+//        p1 += 1
+//    }
+//    return result
+//}
+
+//二分查找，时间复杂度O(log(n))
+func searchRange(_ nums: [Int], _ target: Int) -> [Int] {
+    var res = [-1, -1]
+    let n = nums.count
+    var left = 0
+    var right = n - 1
+    while left <= right {
+        let mid = left + (right - left) / 2
+        if nums[mid] == target {
+            left = mid
+            right = mid
+            while left > 0 && nums[left] == nums[left-1] {
+                left -= 1
+            }
+            while right < n - 1 && nums[right] == nums[right+1] {
+                right += 1
+            }
+            res = [left, right]
+            return res
+        } else if nums[mid] > target {
+            right = mid - 1
+        } else {
+            left = mid + 1
+        }
+    }
+    return res
+}
+
+
+//官方解法：二分查找
+func extremeInsertionindex(nums: [Int], target: Int, left: Bool) -> Int {
+    var lo = 0
+    var hi = nums.count
+    
+    while lo < hi {
+        let mid = (lo + hi) / 2
+        if nums[mid] > target || (left && target == nums[mid]) {
+            hi = mid
+        } else {
+            lo = mid + 1
+        }
+    }
+    
+    return lo
+}
+
+func searchRange(nums: [Int], target: Int) -> [Int] {
+    var targetRange = [-1, -1]
+    let leftIndex = extremeInsertionindex(nums: nums, target: target, left: true)
+    
+    if leftIndex == nums.count || nums[leftIndex] != target {
+        return targetRange
+    }
+    
+    targetRange[0] = leftIndex
+    targetRange[1] = extremeInsertionindex(nums: nums, target: target, left: false) - 1
+    
+    return targetRange
+}
+
+print(searchRange([5,7,7,8,8,10], 8))
