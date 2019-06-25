@@ -367,4 +367,162 @@ func searchRange(nums: [Int], target: Int) -> [Int] {
     return targetRange
 }
 
-print(searchRange([5,7,7,8,8,10], 8))
+/*16.接雨水
+ 暴力解法
+ 由题可以看出每一格可以接的雨水为左边最大数以及右边最大数中较小的数字减去元素本身的格子
+ 此解法用双循环，依次找出每一个元素左右最大的数，求本身可以接的雨水量，累加到结果中
+ 第一个元素以及最后一个元素由于左边/右边没有柱子，所接雨水量
+ 时间复杂度：O(N的平方)
+ Leet Code: 2012ms
+ */
+func trap(_ height: [Int]) -> Int {
+    var ans = 0
+    for i in 1 ..< height.count - 1 {
+        var max_left = 0
+        var max_right = 0
+        var j = i
+        while j >= 0 {
+            max_left = max(height[j], max_left)
+            j -= 1
+        }
+        var k = i
+        while k < height.count {
+            max_right = max(height[k], max_right)
+            k += 1
+        }
+        ans += (min(max_left, max_right) - height[i])
+    }
+    return ans
+}
+
+/*
+ 优化:动态规划
+ 以上解法我们可以新建一个临时变量，来保存当前元素中的最大值，以及当前位置
+ 在对下一个元素进行遍历时，我们可以从当前位置开始
+  Leet Code: 600ms
+ */
+func trap1(_ height: [Int]) -> Int {
+    if height.count <= 2 { return 0 }
+    var ans = 0
+    var max_left_index = 0
+    var max_right_index = 0
+    for i in 1 ..< height.count - 1 {
+        var max_left = 0
+        var max_right = 0
+        var j = max(max_left_index, i)
+        while j >= 0 {
+            if height[j] > max_left {
+                max_left = height[j]
+                max_left_index = j
+            }
+            j -= 1
+        }
+        var k = max(max_right_index, i)
+        while k < height.count {
+            if height[k] > max_right {
+                max_right = height[k]
+                max_right_index = k
+            }
+            k += 1
+        }
+        ans += (min(max_left, max_right) - height[i])
+    }
+    return ans
+}
+
+/*
+ 官方动态规划swift版
+ 时间复杂度O(n)
+ Leet code: 68ms
+ */
+func trap2(_ height: [Int]) -> Int {
+    if height.count <= 2 { return 0 }
+    var ans = 0
+    let size = height.count
+    var left_max = Array(repeating: 0, count: size)
+    var right_max = Array(repeating: 0, count: size)
+    
+    left_max[0] = height[0]
+    for i in 1 ..< size {
+        left_max[i] = max(height[i], left_max[i-1])
+    }
+    
+    right_max[size - 1] = height[size - 1]
+    var i = size - 2
+    while i >= 0 {
+        right_max[i] = max(height[i], right_max[i+1])
+        i -= 1
+    }
+    
+    for i in 1 ..< size - 1 {
+        ans += min(left_max[i], right_max[i]) - height[i]
+    }
+    
+    return ans
+}
+
+/*
+ Leet Code官方解题，双指针法
+ 
+ */
+func trap3 (_ height: [Int]) -> Int {
+    if height.count <= 2 { return 0 }
+    var left = 0
+    var right = height.count - 1
+    var ans = 0
+    var left_max = 0
+    var right_max = 0
+    while left < right {
+        if height[left] < height[right] {
+            if height[left] >= left_max {
+                left_max = height[left]
+            } else {
+                ans += left_max - height[left]
+            }
+            left += 1
+        } else {
+            if height[right] >= right_max {
+                right_max = height[right]
+            } else {
+                ans += right_max - height[right]
+            }
+            right -= 1
+        }
+    }
+    return ans
+}
+
+
+//17.跳跃游戏
+func canJump(_ nums: [Int]) -> Bool {
+    var left = 0
+    var zeroIndex = [Int]()
+    if nums.count <= 1 { return true }
+    for i in 0 ..< nums.count {
+        if nums[i] == 0 {
+            zeroIndex.append(i)
+        }
+    }
+    if zeroIndex.count == 0 {
+        return true
+    }
+    for i in 0 ..< zeroIndex.count {
+        for j in left ..< zeroIndex[i] {
+            if zeroIndex[i] == nums.count-1 {
+                return true
+            }
+            if j == 0 {
+                if nums[j] + j >= zeroIndex[i] && zeroIndex[i] == nums.count-1 {
+                    return true
+                }
+            } else {
+                if nums[j] + j < zeroIndex[i] {
+                    return false
+                }
+            }
+            
+        }
+        left = zeroIndex[i] + 1
+    }
+    return false
+}
