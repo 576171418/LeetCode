@@ -495,34 +495,233 @@ func trap3 (_ height: [Int]) -> Int {
 
 //17.跳跃游戏
 func canJump(_ nums: [Int]) -> Bool {
-    var left = 0
-    var zeroIndex = [Int]()
-    if nums.count <= 1 { return true }
-    for i in 0 ..< nums.count {
-        if nums[i] == 0 {
-            zeroIndex.append(i)
-        }
-    }
-    if zeroIndex.count == 0 {
+    return canJumpFromPosition(position: 0, nums: nums)
+}
+
+func canJumpFromPosition(position: Int, nums: [Int]) -> Bool {
+    if position == nums.count - 1 {
         return true
     }
-    for i in 0 ..< zeroIndex.count {
-        for j in left ..< zeroIndex[i] {
-            if zeroIndex[i] == nums.count-1 {
-                return true
-            }
-            if j == 0 {
-                if nums[j] + j >= zeroIndex[i] && zeroIndex[i] == nums.count-1 {
-                    return true
-                }
-            } else {
-                if nums[j] + j < zeroIndex[i] {
-                    return false
-                }
-            }
-            
+    
+    let furthesJump = min(position + nums[position], nums.count - 1)
+    print(furthesJump)
+    for nextPostion in position + 1 ... furthesJump {
+        if canJumpFromPosition(position: nextPostion, nums: nums) {
+            return true
         }
-        left = zeroIndex[i] + 1
     }
     return false
+}
+
+//18.快速排序
+func partition(low: Int, high: Int, nums: inout [Int]) -> Int {
+    var low = low
+    var high = high
+    let temp = nums[low]
+    var mid = 0
+    while low < high {
+        
+        while low < high && nums[high] >= temp {
+            high -= 1
+        }
+        nums[low] = nums[high]
+        while low < high && nums[low] <= temp {
+            low += 1
+        }
+        nums[high] = nums[low]
+    }
+    nums[low] = temp
+    mid = low
+    
+    return mid
+}
+
+func quickSourted(low: Int, high:Int, nums: inout [Int]) {
+    if low < high {
+        let mid = partition(low: low, high: high, nums: &nums)
+        quickSourted(low: low, high: mid-1, nums: &nums)
+        quickSourted(low: mid+1, high: high, nums: &nums)
+    }
+}
+
+public class ListNode {
+   public var val: Int
+   public var next: ListNode?
+   public init(_ val: Int) {
+       self.val = val
+       self.next = nil
+   }
+}
+ 
+
+//19.两数之和
+func addTwoNumbers(_ l1: ListNode?, _ l2: ListNode?) -> ListNode? {
+    let dummyHead = ListNode(0)
+    var p: ListNode? = l1
+    var q: ListNode? = l2
+    var current: ListNode = dummyHead
+    var carry = 0
+    while p != nil || q != nil {
+        let x = (p != nil) ? p!.val : 0
+        let y = (q != nil) ? q!.val : 0
+        
+        let sum = carry + x + y
+        carry = sum / 10
+        current.next = ListNode(sum % 10)
+        current = current.next!
+        if p != nil { p = p!.next }
+        if q != nil { q = q!.next }
+    }
+    if carry > 0 {
+        current.next = ListNode(carry)
+    }
+    return dummyHead.next
+}
+
+//20.链表反转
+func reverseList(_ head: ListNode?) -> ListNode? {
+    var prev: ListNode? = nil
+    var curr = head
+    while curr != nil {
+        let nextTemp = curr?.next
+        curr?.next = prev
+        prev = curr
+        curr = nextTemp
+    }
+    return prev
+}
+
+
+//21.反转链表II：反转从位置m到n的链表（要求一趟循环完成反转）
+func reverseBetween(_ head: ListNode?, _ m: Int, _ n: Int) -> ListNode? {
+    if head == nil || m > n {
+        return nil
+    }
+    
+    //申请节点指向头节点
+    let fake = ListNode(0)
+    fake.next = head
+    var prve = fake
+    
+    //走到将要翻转节点的前一个节点 prev
+    for _ in 0 ..< m-1 {
+        prve = prve.next!
+    }
+    
+    //cur 第m个节点，也就是将要翻转的节点
+    let curr = prve.next
+    for _ in m ..< n {
+        let tmp = curr?.next      //保存要反转节点的下一个节点
+        curr?.next = tmp?.next   //当前节点指向 要放转节点的next节点，最终指向第m个节点的next
+        tmp?.next = prve.next    //第n个节点的next指向前一个节点
+        prve.next = tmp          // 第m个节点指向后面一个节点
+    }
+    
+    return prve
+}
+
+
+//22.合并两个有序链表
+func mergeTwoLists(_ l1: ListNode?, _ l2: ListNode?) -> ListNode? {
+    if l1 == nil {
+        return l2
+    } else if l2 == nil {
+        return l1
+    } else if l1!.val < l2!.val {
+        l1?.next = mergeTwoLists(l1?.next, l2)
+        return l1
+    } else {
+        l2?.next = mergeTwoLists(l1, l2?.next)
+        return l2
+    }
+}
+
+func mergeTwoLists1(_ l1: ListNode?, _ l2: ListNode?) -> ListNode? {
+    let prehead = ListNode(-1)
+    var _l1 = l1
+    var _l2 = l2
+    
+    var prev = prehead
+    
+    while _l1 != nil && _l2 != nil {
+        if _l1!.val <= _l2!.val {
+            prev.next = _l1
+            _l1 = _l1?.next
+        } else {
+            prev.next = _l2
+            _l2 = _l2?.next
+        }
+        prev = prev.next!
+    }
+    
+    prev.next = l1 == nil ? l2 : l1
+    
+    return prehead.next
+    
+}
+
+//23.个位相加(递归)
+func addDigits(_ num: Int) -> Int {
+    var tempNum = num
+    var sum = 0
+    if tempNum >= 10 {
+        while tempNum != 0 {
+            sum += tempNum % 10
+            tempNum /= 10
+        }
+    } else {
+        return tempNum
+    }
+    return addDigits(sum)
+}
+
+//循环
+func addDigits1(_ num: Int) -> Int {
+    var tempNum = num
+    while tempNum >= 10{
+        var sum = 0
+        while tempNum > 0 {
+            let temp = tempNum % 10
+            sum += temp
+            tempNum /= 10
+        }
+        tempNum = sum
+    }
+    return tempNum
+}
+
+public class TreeNode {
+     public var val: Int
+     public var left: TreeNode?
+     public var right: TreeNode?
+     public init(_ val: Int) {
+         self.val = val
+         self.left = nil
+         self.right = nil
+     }
+ }
+
+
+//24.对称二叉树(递归)
+func isSymmetric(_ root: TreeNode?) -> Bool {
+    return isMirror(t1: root?.left, t2: root?.right)
+}
+
+
+func isMirror(t1: TreeNode?, t2: TreeNode?) -> Bool {
+    if t1 == nil && t2 == nil { return true }
+    if t1 == nil || t2 == nil { return false }
+    return (t1?.val == t2?.val) && isMirror(t1: t1?.left, t2: t2?.right) && isMirror(t1: t1?.right, t2: t2?.left)
+}
+
+
+//循环
+func isSymmetric1(_ root: TreeNode?) -> Bool {
+    var left = root?.left
+    var right = root?.right
+    while true {
+        if left != nil && right != nil {
+            
+        }
+    }
 }
