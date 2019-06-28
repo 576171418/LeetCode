@@ -714,14 +714,27 @@ func isMirror(t1: TreeNode?, t2: TreeNode?) -> Bool {
     return (t1?.val == t2?.val) && isMirror(t1: t1?.left, t2: t2?.right) && isMirror(t1: t1?.right, t2: t2?.left)
 }
 
-
-//循环
-func isSymmetric1(_ root: TreeNode?) -> Bool {
-    var left = root?.left
-    var right = root?.right
-    while true {
-        if left != nil && right != nil {
-            
+//25.合并区间(284ms)
+func merge(_ intervals: [[Int]]) -> [[Int]] {
+    var newIntervals = intervals.sorted { (a, b) -> Bool in
+        return a[0] < b[0] ? true : false
+    }
+    
+    var i = 0
+    while i < newIntervals.count - 1 {
+        if newIntervals[i][1] >= newIntervals[i+1][0] {
+            if newIntervals[i][1] < newIntervals[i+1][1] {
+                newIntervals.insert([newIntervals[i][0], newIntervals[i+1][1]], at: i)
+            } else {
+                newIntervals.insert([newIntervals[i][0], newIntervals[i][1]], at: i)
+            }
+            newIntervals.remove(at: i+1)
+            newIntervals.remove(at: i+1)
+        } else {
+            i += 1
         }
     }
+    return newIntervals
 }
+
+print(merge([[1,4],[0,4]]))
