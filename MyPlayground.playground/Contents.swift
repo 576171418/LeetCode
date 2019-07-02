@@ -499,12 +499,11 @@ func canJump(_ nums: [Int]) -> Bool {
 }
 
 func canJumpFromPosition(position: Int, nums: [Int]) -> Bool {
-    if position == nums.count - 1 {
+    if position >= nums.count - 1 {
         return true
     }
     
     let furthesJump = min(position + nums[position], nums.count - 1)
-    print(furthesJump)
     for nextPostion in position + 1 ... furthesJump {
         if canJumpFromPosition(position: nextPostion, nums: nums) {
             return true
@@ -737,4 +736,78 @@ func merge(_ intervals: [[Int]]) -> [[Int]] {
     return newIntervals
 }
 
-print(merge([[1,4],[0,4]]))
+
+//27.移除链表的某个元素
+func removeElements(_ head: ListNode?, _ val: Int) -> ListNode? {
+    var prev: ListNode? = ListNode(0)
+    prev?.next = head
+    let result = prev
+    while prev?.next != nil {
+        if prev?.next?.val == val {
+            print("移除：\(prev!.next!.val)")
+            prev?.next = prev?.next?.next
+            
+        } else {
+            print("不移除：\(prev!.next!.val)")
+            prev = prev?.next
+        }
+    }
+    return result?.next
+}
+
+//28.长度最小的子数组
+func minSubArrayLen(_ s: Int, _ nums: [Int]) -> Int {
+    let n = nums.count
+    var result = n + 1
+    for i in 0 ..< n {
+        for j in i ..< n {
+            var sum = 0
+            for k in i ... j {
+                sum += nums[k]
+            }
+            if sum >= s {
+                result = min(result, j - i + 1)
+                break
+            }
+        }
+    }
+    return result == n + 1 ? 0 : result
+}
+
+//29.最大间距
+func maximumGap(_ nums: [Int]) -> Int {
+    let n = nums.count
+    if n < 2 {
+        return 0
+    }
+    var result = 0
+    var tempNums = nums.sorted()
+    for i in 0 ..< n {
+        result = max(result, tempNums[i+1]-tempNums[i])
+    }
+    return result
+}
+
+//30.最大数
+func largestNumber(_ nums: [Int]) -> String {
+    var numsString = [String]()
+    for i in 0 ..< nums.count {
+        numsString.append(String(nums[i]))
+    }
+    numsString.sorted { (a, b) -> Bool in
+        if a < b {
+            return false
+        }
+        return true
+    }
+    var result = ""
+    for i in 0 ..< numsString.count {
+        result += numsString[i]
+    }
+    return result
+}
+
+//31.有效的井字游戏
+func validTicTacToe(_ board: [String]) -> Bool {
+    return true
+}
