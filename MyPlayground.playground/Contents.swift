@@ -1,3 +1,5 @@
+import Foundation
+
 //1.两数之和
 func twoSum(_ nums: [Int], _ target: Int) -> [Int] {
     for i in 0 ..< nums.count {
@@ -242,33 +244,6 @@ func sortColors(_ nums: inout [Int]) {
     }
 }
 
-//13.组合之和
-func combinationSum(_ candidates: [Int], _ target: Int) -> [[Int]] {
-    var result = [[Int]]()
-    candidates.sorted()
-    if candidates[0] > target || candidates.count == 0 {
-        return result
-    }
-    var temp = [Int]()
-    getRemainTarget(nums: candidates, result: &result, tmp: &temp, start: 0, remain: target)
-    
-    return result
-}
-
-func getRemainTarget(nums: [Int], result: inout [[Int]], tmp: inout [Int], start: Int, remain: Int) {
-    if remain < 0 {
-        return
-    } else if remain == 0 {
-        result.append(tmp)
-    } else {
-        for i in start ..< nums.count {
-            tmp.append(nums[i])
-            getRemainTarget(nums: nums, result: &result, tmp: &tmp, start: i, remain: remain - nums[i])
-            tmp.remove(at: tmp.count - 1)
-        }
-    }
-}
-
 //14.全排列
 func backtrack(n: Int, nums: inout [Int], output: inout [[Int]], first: Int) {
     //排列结束
@@ -281,7 +256,7 @@ func backtrack(n: Int, nums: inout [Int], output: inout [[Int]], first: Int) {
         backtrack(n: n, nums: &nums, output: &output, first: first+1)
         nums.swapAt(first, i)
     }
-    
+
 }
 
 func permute(_ nums: [Int]) -> [[Int]] {
@@ -774,7 +749,7 @@ func minSubArrayLen(_ s: Int, _ nums: [Int]) -> Int {
     return result == n + 1 ? 0 : result
 }
 
-//29.最大间距
+//最大间距
 func maximumGap(_ nums: [Int]) -> Int {
     let n = nums.count
     if n < 2 {
@@ -788,7 +763,7 @@ func maximumGap(_ nums: [Int]) -> Int {
     return result
 }
 
-//30.最大数
+//最大数
 func largestNumber(_ nums: [Int]) -> String {
     var numsString = [String]()
     for i in 0 ..< nums.count {
@@ -807,7 +782,327 @@ func largestNumber(_ nums: [Int]) -> String {
     return result
 }
 
-//31.有效的井字游戏
-func validTicTacToe(_ board: [String]) -> Bool {
-    return true
+//分糖果II
+func distributeCandies(_ candies: Int, _ num_people: Int) -> [Int] {
+    var result = Array(repeating: 0, count: num_people)
+    var candiesNum = candies
+    var n = 0
+    while candiesNum > 0 {
+        for i in 0 ..< num_people {
+            if candiesNum > 0 {
+                if candiesNum > i + 1 + n * num_people {
+                    result[i] += i + 1 + n * num_people
+                    candiesNum -= i + 1 + n * num_people
+                } else {
+                    result[i] += candiesNum
+                    candiesNum -= candiesNum
+                }
+            } else {
+                break
+            }
+            
+        }
+        n += 1
+    }
+    return result
 }
+
+//分糖果
+func distributeCandies(_ candies: [Int]) -> Int {
+    let candiesSet = Set(candies)
+    if candiesSet.count > candies.count / 2 {
+        return candies.count / 2
+    } else {
+        return candiesSet.count
+    }
+}
+
+//压缩字符串
+func compress(_ chars: inout [Character]) -> Int {
+    var left = 0
+    var result = [Character]()
+    while left < chars.count {
+        print("left: \(left)")
+        for i in left + 1 ..< chars.count {
+            print("i: \(i)")
+            //需要特殊考虑i = chars.count的情况，明天过来解决
+            if chars[i] != chars[left] {
+                result.append(chars[left])
+                result.append(Character("\(i-left)"))
+                left = i
+                break
+            }
+        }
+    }
+    chars = result
+    return chars.count
+}
+
+//四数之和
+func fourSum(_ nums: [Int], _ target: Int) -> [[Int]] {
+    let n = nums.count
+    var p1 = 0
+    var p2 = p1 + 1
+    var p3 = p2 + 1
+    var p4 = n - 1
+    var sortNums = nums.sorted()
+    var result = [[Int]]()
+    while p1 < n - 3 {
+        if p1 > 0 && sortNums[p1] == sortNums[p1 - 1] {
+            p1 += 1
+            continue
+        }
+        p2 = p1 + 1
+        while p2 < n - 2 {
+            if p2 - p1 > 1 && sortNums[p2] == sortNums[p2 - 1] {
+                p2 += 1
+                continue
+            }
+            p3 = p2 + 1
+            p4 = n - 1
+            while p3 < p4 {
+                let sum = sortNums[p1] + sortNums[p2] + sortNums[p3] + sortNums[p4]
+                if sum > target {
+                    p4 -= 1
+                } else if sum < target {
+                    p3 += 1
+                } else {
+                    result.append([sortNums[p1], sortNums[p2], sortNums[p3], sortNums[p4]])
+                    while p3 < p4 && sortNums[p3] == sortNums[p3+1] {
+                        p3 += 1
+                    }
+                    while p3 < p4 && sortNums[p4] == sortNums[p4-1] {
+                        p4 -= 1
+                    }
+                    p3 += 1
+                    p4 -= 1
+                }
+            }
+            p2 += 1
+        }
+        p1 += 1
+    }
+    return result
+}
+
+
+func fourSum1(_ nums: [Int], _ target: Int) -> [[Int]] {
+    var tempNums = nums.sorted()
+    var result = [[Int]]()
+    let n = tempNums.count
+    for i in 0 ..< n - 3 {
+        if i > 0 && tempNums[i] == tempNums[i - 1] { continue }
+        if tempNums[i] + tempNums[i + 1] + tempNums[i + 2] + tempNums[i + 3] > target { break }
+        for j in i + 1 ..< n - 2 {
+            if j - i > 1 && tempNums[j] == tempNums[j - 1] { continue }
+            if tempNums[i] + tempNums[j] + tempNums[j + 1] + tempNums[j + 2] > target { break }
+            var left = j + 1
+            var right = n - 1
+            while left < right {
+                let sum = tempNums[i] + tempNums[j] + tempNums[left] + tempNums[right]
+                if sum == target {
+                    result.append([tempNums[i], tempNums[j], tempNums[left], tempNums[right]])
+                    while left < right && tempNums[left] == tempNums[left + 1] {
+                        left += 1
+                    }
+                    while left < right && tempNums[right] == tempNums[right - 1] {
+                        right -= 1
+                    }
+                    left += 1
+                    right -= 1
+                } else if sum > target {
+                    right -= 1
+                } else {
+                    left += 1
+                }
+            }
+
+        }
+    }
+    return result
+}
+
+//归并排序
+func mergeTwoArray(first: [Int], second: [Int]) -> [Int] {
+    var p1 = 0
+    var p2 = 0
+    var result = [Int]()
+    while p1 < first.count && p2 < second.count {
+        if first[p1] <= second[p2] {
+            result.append(first[p1])
+            p1 += 1
+        } else {
+            result.append(second[p2])
+            p2 += 1
+        }
+    }
+    
+    while p1 < first.count {
+        result.append(first[p1])
+        p1 += 1
+    }
+    
+    while p2 < second.count {
+        result.append(second[p2])
+        p2 += 1
+    }
+    
+    return result
+}
+
+func sort(items: [Int]) -> [Int] {
+    var tempArray = [[Int]]()
+    for item in items {
+        var subArray = [Int]()
+        subArray.append(item)
+        tempArray.append(subArray)
+    }
+    while tempArray.count != 1 {
+        print(tempArray)
+        var i = 0
+        while i < tempArray.count - 1 {
+            tempArray[i] = mergeTwoArray(first: tempArray[i], second: tempArray[i + 1])
+            tempArray.remove(at: i + 1)
+            i += 1
+        }
+    }
+    return tempArray.first!
+}
+
+
+//有效的括号
+func isValid(_ s: String) -> Bool {
+    var chars = [Character]()
+    for char in s {
+        switch char {
+        case "{", "(", "[":
+            chars.append(char)
+        case ")":
+            guard chars.isEmpty && chars.removeLast() == "(" else { return false }
+        case "}":
+            guard chars.isEmpty && chars.removeLast() == "{" else { return false }
+        case "]":
+            guard chars.isEmpty && chars.removeLast() == "[" else { return false }
+        default:
+            return false
+        }
+    }
+    return chars.isEmpty
+}
+
+//组合之和
+func combinationSum(_ candidates: [Int], _ target: Int) -> [[Int]] {
+    var result = [[Int]]()
+    var tempNums = candidates.sorted()
+    if tempNums[0] > target || tempNums.count == 0 {
+        return result
+    }
+    var temp = [Int]()
+    getRemainTarget(nums: tempNums, result: &result, tmp: &temp, start: 0, remain: target)
+    
+    return result
+}
+
+func getRemainTarget(nums: [Int], result: inout [[Int]], tmp: inout [Int], start: Int, remain: Int) {
+    if remain < 0 {
+        return
+    } else if remain == 0 {
+        result.append(tmp)
+    } else {
+        for i in start ..< nums.count {
+            tmp.append(nums[i])
+            print(remain - nums[i])
+            getRemainTarget(nums: nums, result: &result, tmp: &tmp, start: i, remain: remain - nums[i])
+            tmp.removeLast()
+        }
+    }
+}
+
+//组合总和II
+func combinationSum2(_ candidates: [Int], _ target: Int) -> [[Int]] {
+    var result = [[Int]]()
+    var tempNums = candidates.sorted()
+    if tempNums[0] > target || tempNums.count == 0 {
+        return result
+    }
+    var temp = [Int]()
+    getRemainTarget2(nums: tempNums, result: &result, tmp: &temp, start: 0, remain: target)
+    return result
+}
+
+func getRemainTarget2(nums: [Int], result: inout [[Int]], tmp: inout [Int], start: Int, remain: Int) {
+    if remain < 0 {
+        return
+    } else if remain == 0 {
+        result.append(tmp)
+    } else {
+        for i in start ..< nums.count - 1 {
+            if nums[i] == nums[i + 1] {
+                if start == i {
+                    continue
+                }
+            }
+            tmp.append(nums[i])
+            getRemainTarget2(nums: nums, result: &result, tmp: &tmp, start: i + 1, remain: remain - nums[i])
+            tmp.removeLast()
+        }
+    }
+}
+
+//跳跃游戏II(贪婪算法)
+func jump(nums: [Int]) -> Int {
+    var end = 0
+    var maxPosition = 0
+    var steps = 0
+    for i in 0 ..< nums.count - 1 {
+        maxPosition = max(maxPosition, nums[i] + i)
+        if i == end {
+            print("end is \(end)")
+            end = maxPosition
+            steps += 1
+        }
+    }
+    return steps
+}
+
+//爱生气的书店老板
+func maxSatisfied(_ customers: [Int], _ grumpy: [Int], _ X: Int) -> Int {
+    
+    var result = 0
+    var minResult = 0
+    for i in 0 ..< customers.count {
+        if grumpy[i] == 0 {
+            minResult += customers[i]
+        }
+    }
+    
+    for i in 0 ..< customers.count - X + 1 {
+        var tempResult = minResult
+        for j in i ..< i + X {
+            if grumpy[j] == 1 {
+                tempResult = tempResult + customers[j]
+            }
+        }
+        result = max(result, tempResult)
+    }
+    
+    return result
+    
+}
+
+//最佳观光组合
+func maxScoreSightseeingPair(_ A: [Int]) -> Int {
+    
+    var result = 0
+    var pre_Max = A[0] + 0
+    
+    for j in 1 ..< A.count {
+        result = max(result, pre_Max + A[j] - j)
+        pre_Max = max(pre_Max, A[j] + j)
+    }
+    
+    return result
+    
+}
+
+print(maxScoreSightseeingPair([8,1,5,2,6]))
